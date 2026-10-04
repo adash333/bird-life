@@ -45,6 +45,13 @@
           ><button id="sleep">🌙<br />ねる</button
           ><button id="advance" class="primary">⏩<br />＋3時間</button>
         </div>
+        <div class="dataActions">
+          <button id="exportData">JSONエクスポート</button>
+          <button id="importData">JSONインポート</button>
+          <input id="importFile" type="file" accept=".json,application/json" hidden />
+        </div>
+        <p class="dataHint">インポートすると現在のゲームデータを置き換えます。</p>
+        <div id="dataStatus" class="muted" role="status" aria-live="polite"></div>
       </section>
       <section class="panel familyPanel">
         <strong>🐦 鳥の家族</strong>

@@ -1,5 +1,31 @@
 // ボタンの動作とゲームの開始。必ず最後に読み込む。
 el("soundStart").onclick = startAudio;
+el("exportData").onclick = () => {
+  const blob = new Blob([JSON.stringify(gameData(), null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "bird-life-" + new Date().toISOString().replace(/[:.]/g, "-") + ".json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  el("dataStatus").textContent = "ゲームデータをJSONでエクスポートしました。";
+};
+el("importData").onclick = () => el("importFile").click();
+el("importFile").onchange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    importGameData(await file.text());
+    el("dataStatus").textContent = "ゲームデータをインポートしました。";
+  } catch (e) {
+    el("dataStatus").textContent =
+      "読み込めませんでした。正しいBird LifeのJSONファイルを選んでください。現在のデータはそのままです。";
+  } finally {
+    event.target.value = "";
+  }
+};
 el("closeNotice").onclick = () => {
   const id = Number(el("hungerNotice").dataset.bird);
   if (id) noticeDismissedFor.add(id);

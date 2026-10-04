@@ -1,8 +1,62 @@
 // localStorage への保存と読み込み。壊れたデータも安全な値に直して読む。
 function save() {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ nextId, selected, flock }));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(gameData()));
   } catch (e) {}
+}
+function gameData() {
+  return { format: "bird-life", version: 2, nextId, selected, actionCount, flock };
+}
+function importGameData(text) {
+  const d = JSON.parse(text);
+  if (!d || d.format !== "bird-life" || d.version !== 2 || !Array.isArray(d.flock) || !d.flock.length)
+    throw new Error("Bird LifeのJSONファイルを選んでください。");
+  const ids = new Set();
+  const number = (v, min, max) => typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
+  for (const b of d.flock) {
+    if (
+      !b ||
+      !Number.isSafeInteger(b.id) ||
+      b.id < 1 ||
+      ids.has(b.id) ||
+      !Number.isInteger(b.variant) ||
+      !number(b.variant, 0, variants.length - 1) ||
+      !number(b.age, 0, Number.MAX_SAFE_INTEGER) ||
+      !number(b.warmth, 0, 3) ||
+      ![b.food, b.happy, b.energy].every((v) => number(v, 0, 100)) ||
+      !number(b.x, 0, 100) ||
+      !number(b.y, 0, 100) ||
+      typeof b.alive !== "boolean" ||
+      typeof b.laid !== "boolean" ||
+      (b.name !== null && (typeof b.name !== "string" || /[<>&"']/.test(b.name))) ||
+      !b.genes ||
+      ![b.genes.body, b.genes.belly, b.genes.accent].every(
+        (v) => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v),
+      ) ||
+      !PATTERNS.includes(b.genes.pattern) ||
+      b.genesVersion !== 2 ||
+      (b.collapsed !== undefined && typeof b.collapsed !== "boolean") ||
+      (b.revive !== undefined && (!Number.isInteger(b.revive) || !number(b.revive, 0, 3)))
+    )
+      throw new Error("鳥のデータが正しくありません。");
+    ids.add(b.id);
+  }
+  if (
+    !Number.isSafeInteger(d.nextId) ||
+    d.nextId <= Math.max(...ids) ||
+    !ids.has(d.selected) ||
+    !Number.isInteger(d.actionCount) ||
+    !number(d.actionCount, 0, 2) ||
+    d.flock.some((b) => b.parent !== null && !ids.has(b.parent))
+  )
+    throw new Error("ゲームデータが正しくありません。");
+  // 全項目の検証が済むまで、現在のゲームと保存データには触れない。
+  flock = d.flock.map((b) => ({ ...b, genes: { ...b.genes } }));
+  nextId = d.nextId;
+  selected = d.selected;
+  actionCount = d.actionCount;
+  noticeDismissedFor.clear();
+  render("JSONファイルからゲームデータを復元しました。");
 }
 function normalizeBird(b, i) {
   const id = Number.isFinite(+b.id) ? +b.id : i + 1;
@@ -45,6 +99,8 @@ function load() {
     }
     nextId = Math.max(Number(d.nextId) || 1, ...flock.map((b) => b.id + 1));
     selected = flock.some((b) => b.id === d.selected) ? d.selected : flock[0]?.id || 1;
+    actionCount =
+      Number.isInteger(d.actionCount) && d.actionCount >= 0 && d.actionCount < 3 ? d.actionCount : 0;
     return flock.length > 0;
   } catch (e) {
     return false;

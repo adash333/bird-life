@@ -377,6 +377,20 @@ body {
 .hidden {
   display: none;
 }
+.dataActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.dataActions button {
+  flex: 1;
+  min-height: 44px;
+  font-size: 12px;
+}
+.dataHint {
+  margin: 4px 0;
+  font-size: 11px;
+}
 @media (max-width: 899px) {
   .worldBird {
     width: 54px;

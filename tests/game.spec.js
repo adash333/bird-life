@@ -3,6 +3,7 @@
 const { test, expect } = require("@playwright/test");
 const path = require("path");
 const { pathToFileURL } = require("url");
+const fs = require("fs/promises");
 
 const GAME_URL = pathToFileURL(path.join(__dirname, "..", "index.html")).href;
 const SAVE_KEY = "bird-life-save-v2";
@@ -289,6 +290,77 @@ for (const [label, save] of [
     await expect(playable.first()).toBeVisible();
   });
 }
+
+test("JSON export and import restore the family, traits, selection and care progress", async ({ page }) => {
+  await openGame(page);
+  await hatch(page);
+  await page.evaluate(() => {
+    clearInterval(moveTimer);
+    const parent = current();
+    parent.age = 36;
+    parent.laid = true;
+    const child = makeBird(nextId++, 1, parent.id);
+    flock.push(child);
+    render();
+  });
+  await page.click("#feed");
+  await page.click("#play");
+  const expected = await page.evaluate(() => gameData());
+  const downloaded = page.waitForEvent("download");
+  await page.click("#exportData");
+  const download = await downloaded;
+  expect(download.suggestedFilename()).toMatch(/^bird-life-.*\.json$/);
+  const json = await fs.readFile(await download.path(), "utf8");
+  expect(JSON.parse(json)).toEqual(expected);
+  await page.click("#sleep");
+  await page.click("#importData");
+  await page
+    .locator("#importFile")
+    .setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(json) });
+  await expect(page.locator("#dataStatus")).toHaveText("ゲームデータをインポートしました。");
+  expect(await page.evaluate(() => gameData())).toEqual(expected);
+  await expect(page.locator("#count")).toHaveText("2羽");
+  await page.reload();
+  await page.evaluate(() => clearInterval(moveTimer));
+  expect(await page.evaluate(() => gameData())).toEqual(expected);
+  await page.click("#sleep");
+  expect(await page.evaluate(() => actionCount)).toBe(0);
+  await expectBirdsVisible(page);
+  // 同じファイルを続けて読み込んでも復元できる。
+  await page
+    .locator("#importFile")
+    .setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(json) });
+  await expect(page.locator("#dataStatus")).toHaveText("ゲームデータをインポートしました。");
+  expect(await page.evaluate(() => gameData())).toEqual(expected);
+});
+
+test("invalid JSON imports leave the current game and saved data intact", async ({ page }) => {
+  await openGame(page);
+  await hatch(page);
+  await page.evaluate(() => clearInterval(moveTimer));
+  const original = await page.evaluate(() => localStorage.getItem(SAVE_KEY));
+  const unsafe = JSON.parse(original);
+  unsafe.flock[0].genes.body = '\"/><script>alert(1)</script>';
+  const duplicate = JSON.parse(original);
+  duplicate.flock.push(duplicate.flock[0]);
+  for (const text of [
+    "{broken",
+    "null",
+    "{}",
+    JSON.stringify({ ...JSON.parse(original), version: 99 }),
+    JSON.stringify(unsafe),
+    JSON.stringify(duplicate),
+  ]) {
+    await page
+      .locator("#importFile")
+      .setInputFiles({ name: "invalid.json", mimeType: "application/json", buffer: Buffer.from(text) });
+    await expect(page.locator("#dataStatus")).toContainText("現在のデータはそのままです");
+    expect(await page.evaluate(() => localStorage.getItem(SAVE_KEY))).toBe(original);
+    expect(await page.evaluate(() => gameData())).toEqual(JSON.parse(original));
+  }
+  await page.click("#feed");
+  await expect(page.locator("#msg")).toContainText("食べています");
+});
 
 test("sound button never throws", async ({ page }) => {
   await openGame(page);
