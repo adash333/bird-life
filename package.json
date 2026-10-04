@@ -1,0 +1,14 @@
+{
+  "name": "bird-life",
+  "private": true,
+  "description": "Bird Life - a small browser bird-raising game",
+  "scripts": {
+    "check": "node scripts/check-syntax.mjs",
+    "test": "npm run check && playwright test",
+    "format": "prettier --write index.html style.css js tests scripts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "prettier": "3.9.9"
+  }
+}

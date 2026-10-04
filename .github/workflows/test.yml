@@ -1,0 +1,22 @@
+# Runs the syntax check and the automated play-through tests on every push and pull request.
+# A red ✗ on the commit means the game is broken — fix it before playing on GitHub Pages.
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
