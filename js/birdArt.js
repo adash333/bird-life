@@ -28,9 +28,9 @@ function birdSvg(b, small = false) {
     g.belly +
     '"/>' +
     pattern +
-    '<circle cx="24" cy="20" r="3" fill="#222"/><circle cx="40" cy="20" r="3" fill="#222"/><path d="M29 25 L35 25 L32 30 Z" fill="#ef9b35"/><path d="M12 34 Q4 39 13 44" fill="' +
+    '<circle cx="24" cy="20" r="3" fill="#222"/><circle cx="40" cy="20" r="3" fill="#222"/><path d="M29 25 L35 25 L32 30 Z" fill="#ef9b35"/><path class="wing" d="M12 34 Q4 39 13 44" fill="' +
     g.accent +
-    '" stroke="#4c5960" stroke-width="2"/><path d="M52 34 Q60 39 51 44" fill="' +
+    '" stroke="#4c5960" stroke-width="2"/><path class="wing" d="M52 34 Q60 39 51 44" fill="' +
     g.accent +
     '" stroke="#4c5960" stroke-width="2"/><path d="M25 58 l-3 4 M39 58 l3 4" stroke="#9a6b38" stroke-width="2"/>';
   const open = '<svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true">';

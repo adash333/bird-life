@@ -138,6 +138,48 @@ test("the bird grows chick → young → adult with different pictures and doubl
   await expectSize(128);
 });
 
+test("awake adults sometimes fly, flap their wings and land", async ({ page }) => {
+  await page.clock.install();
+  await openGame(page);
+  await page.evaluate(() => {
+    flock = [makeBird(1, 0), makeBird(2, 0), makeBird(3, 0), makeBird(4, 0), makeBird(5, 0)];
+    for (const b of flock) {
+      b.warmth = b.id === 5 ? 0 : 3;
+      b.age = b.id === 2 ? 6 : b.id === 3 ? 18 : 36;
+    }
+    flock[3].collapsed = true;
+    selected = 1;
+    render();
+    Math.random = () => 0.1;
+  });
+  await page.clock.runFor(2600);
+  const adult = page.locator('.worldBird[data-id="1"]');
+  await expect(adult).toHaveClass(/flying/);
+  await expect(adult.locator("svg")).toHaveCSS("animation-name", "flight");
+  await expect(adult.locator(".wing").first()).toHaveCSS("animation-name", "flap");
+  await expect(page.locator(".worldBird.flying")).toHaveCount(1);
+  await page.clock.runFor(900);
+  await adult.locator("svg").evaluate((svg) => {
+    const flight = svg.getAnimations()[0];
+    flight.pause();
+    flight.currentTime = 900;
+  });
+  const lift = await adult
+    .locator("svg")
+    .evaluate((svg) => new DOMMatrix(getComputedStyle(svg).transform).m42);
+  expect(lift).toBeLessThan(-30);
+  await expectBirdsVisible(page);
+  await page.clock.runFor(900);
+  await expect(adult).not.toHaveClass(/flying/);
+  await expect(adult.locator("svg")).toHaveCSS("transform", "none");
+  await page.evaluate(() => {
+    Math.random = () => 0.9;
+  });
+  await page.clock.runFor(800);
+  await expect(adult).toHaveClass(/walking/);
+  await expect(page.locator(".worldBird.flying")).toHaveCount(0);
+});
+
 test("a healthy adult lays an egg and the family grows", async ({ page }) => {
   await openGame(page);
   await hatch(page);

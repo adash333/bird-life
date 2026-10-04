@@ -166,10 +166,12 @@ function wander() {
     b.y = Math.max(25, Math.min(85, (b.y || 55) + (Math.random() * 16 - 8)));
     const n = document.querySelector('.worldBird[data-id="' + b.id + '"]');
     if (n) {
-      n.classList.add("walking");
+      const flying = stageOf(b)[0] === "adult" && Math.random() < 0.25;
+      n.classList.remove("walking", "flying");
+      n.classList.add(flying ? "flying" : "walking");
       n.style.left = b.x + "%";
       n.style.top = b.y + "%";
-      setTimeout(() => n.classList.remove("walking"), 1500);
+      setTimeout(() => n.classList.remove("walking", "flying"), flying ? 1800 : 1500);
     }
   }
   save();
