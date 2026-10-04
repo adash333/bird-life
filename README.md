@@ -1,37 +1,47 @@
 # Bird Life 🐣
 
-A simple virtual bird-raising game where each new generation brings a different bird.
+A simple virtual bird-raising game where birds grow, lay eggs, and gradually build a family.
+
+## 🎮 Play the MVP
+
+**GitHub Pages:** https://adash333.github.io/bird-life/
+
+Open the link above on a phone or computer to play the latest version.
 
 ## Current MVP
 
 Bird Life is a small browser-based virtual pet game inspired by classic pet-raising games.
 
-- Feed your bird
-- Play with your bird
-- Let your bird sleep
+- Warm an egg until it hatches
+- Raise a chick into a young bird and then an adult
+- Feed, play with, and let each bird sleep
 - Hunger, happiness, and energy change over time
-- If a status reaches zero, that bird's life ends
-- A new egg then hatches into a different bird
-- Previous birds remain in the collection
+- Healthy adult birds can lay eggs
+- Parents remain in the flock, so the family grows
+- Children may inherit the parent's type or hatch as a different type
+- Switch between birds and care for them individually
+- Progress and the flock are saved in the browser with localStorage
 
-## Run
+## Growth loop
+
+**🥚 Egg → 🐣 Chick → 🐤 Young bird → 🐦 Adult → 🥚 Egg**
+
+Eggs hatch after being warmed three times.
+
+## Run locally
 
 No build step or dependencies are required. Open `index.html` in a browser.
 
-The project is intentionally kept simple so it can be published with GitHub Pages.
-
 ## Next ideas
 
-- Persist game state and the bird collection
 - Real-time status decay
-- Growth stages: egg → chick → adult
 - More colors, patterns, clothes, and rare birds
-- Evolution based on how the player cared for the bird
-- Bird encyclopedia / collection screen
-- Better original bird artwork and animations
+- Richer inheritance / genetics
+- Family tree and bird encyclopedia
+- Original bird artwork and animations
 - Sound effects
-- Mobile-first UI / PWA support
+- PWA installation
 
 ## Status
 
-Early prototype / MVP.
+Early playable MVP.
