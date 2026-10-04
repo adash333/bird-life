@@ -186,8 +186,9 @@ body {
 .worldBird.walking {
   animation: bob 0.38s infinite alternate;
 }
-.worldBird.flying svg {
+.worldBird.flying {
   animation: flight 1.8s ease-in-out;
+  z-index: 5;
 }
 .worldBird.flying .wing {
   transform-box: fill-box;
@@ -197,11 +198,11 @@ body {
 @keyframes flight {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate(-50%, -50%);
   }
   30%,
   70% {
-    transform: translateY(-45px) rotate(-4deg);
+    transform: translate(-50%, calc(-50% - var(--flight-lift))) rotate(-4deg);
   }
 }
 @keyframes flap {

@@ -156,19 +156,21 @@ test("awake adults sometimes fly, flap their wings and land", async ({ page }) =
   await page.clock.runFor(2600);
   const adult = page.locator('.worldBird[data-id="1"]');
   await expect(adult).toHaveClass(/flying/);
-  await expect(adult.locator("svg")).toHaveCSS("animation-name", "flight");
+  await expect(adult).toHaveCSS("animation-name", "flight");
   await expect(adult.locator(".wing").first()).toHaveCSS("animation-name", "flap");
   await expect(page.locator(".worldBird.flying")).toHaveCount(1);
   await page.clock.runFor(900);
-  await adult.locator("svg").evaluate((svg) => {
-    const flight = svg.getAnimations()[0];
+  await adult.evaluate((bird) => {
+    const flight = bird.getAnimations().find((animation) => animation.animationName === "flight");
     flight.pause();
     flight.currentTime = 900;
   });
-  const lift = await adult
-    .locator("svg")
-    .evaluate((svg) => new DOMMatrix(getComputedStyle(svg).transform).m42);
-  expect(lift).toBeLessThan(-30);
+  const skyPosition = await adult.evaluate((bird) => {
+    const r = bird.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom, horizon: el("field").getBoundingClientRect().top };
+  });
+  expect(skyPosition.top).toBeGreaterThanOrEqual(0);
+  expect(skyPosition.bottom).toBeLessThan(skyPosition.horizon);
   await expectBirdsVisible(page);
   await page.clock.runFor(900);
   await expect(adult).not.toHaveClass(/flying/);

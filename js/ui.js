@@ -27,6 +27,14 @@ function layoutField() {
     right: right + "px",
     bottom: bottom + "px",
   });
+  document.querySelectorAll(".worldBird.flying").forEach((n) => setFlightHeight(n));
+}
+function setFlightHeight(n, previousY = parseFloat(n.style.top)) {
+  const field = el("field");
+  const horizon = field.offsetTop;
+  const skyY = Math.max(n.offsetHeight / 2 + 8, Math.min(horizon / 2, horizon - n.offsetHeight / 2 - 20));
+  const groundY = horizon + (field.clientHeight * Math.max(previousY, parseFloat(n.style.top))) / 100;
+  n.style.setProperty("--flight-lift", Math.max(0, groundY - skyY) + "px");
 }
 function renderWorld() {
   document.querySelectorAll(".worldBird").forEach((n) => n.remove());
@@ -161,6 +169,7 @@ function renderFamily() {
 }
 function wander() {
   for (const b of flock.filter((x) => x.alive && !x.collapsed && stageOf(x)[0] !== "egg")) {
+    const previousY = b.y;
     b.x = clamp((b.x || 50) + (Math.random() * 28 - 14));
     b.x = Math.max(12, Math.min(88, b.x));
     b.y = Math.max(25, Math.min(85, (b.y || 55) + (Math.random() * 16 - 8)));
@@ -171,6 +180,7 @@ function wander() {
       n.classList.add(flying ? "flying" : "walking");
       n.style.left = b.x + "%";
       n.style.top = b.y + "%";
+      if (flying) setFlightHeight(n, previousY);
       setTimeout(() => n.classList.remove("walking", "flying"), flying ? 1800 : 1500);
     }
   }
