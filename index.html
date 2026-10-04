@@ -26,11 +26,11 @@ const flock=[makeBird(1,0)];
 function makeBird(id,variant,parent=null){return{id,variant,parent,age:0,food:75,happy:75,energy:75,alive:true,laid:false}}
 const el=id=>document.getElementById(id),clamp=v=>Math.max(0,Math.min(100,v)),current=()=>flock.find(b=>b.id===selected);
 function stageOf(b){if(b.age<6)return["egg","🥚","卵"];if(b.age<18)return["chick","🐣","ヒナ"];if(b.age<36)return["young","🐤","若鳥"];return["adult",variants[b.variant].adult,"成鳥"]}
-function render(message){
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({nextId,selected,flock}))}catch(e){}}\nfunction load(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return;const d=JSON.parse(raw);if(Array.isArray(d.flock)&&d.flock.length){flock=d.flock;nextId=Number(d.nextId)||Math.max(...flock.map(b=>b.id))+1;selected=flock.some(b=>b.id===d.selected)?d.selected:flock[0].id}}catch(e){}}\nfunction render(message){
  const b=current(),v=variants[b.variant],s=stageOf(b);el("bird").textContent=b.alive?s[1]:"🪶";el("name").textContent=v.name+"ちゃん";el("trait").textContent=v.trait;el("stage").textContent=s[2]+"・生後 "+b.age+"時間";el("count").textContent=flock.filter(x=>x.alive).length+"羽";
  el("stats").innerHTML=[["food","🍚 おなか"],["happy","❤️ ごきげん"],["energy","⚡ げんき"]].map(([k,l])=>'<div class="stat"><div class="label"><span>'+l+'</span><span>'+Math.round(b[k])+'</span></div><div class="bar"><div class="fill" style="width:'+b[k]+'%"></div></div></div>').join("");
  if(message)el("msg").textContent=message;else el("msg").textContent=!b.alive?"この鳥は思い出として家族に残っています。":s[0]==="egg"?"卵をあたためて育てましょう。":s[0]==="adult"&&!b.laid?"元気に育つと卵を産みます。":"元気に育っています。";
- document.querySelectorAll(".actions button").forEach(x=>x.disabled=!b.alive);el("advance").disabled=!b.alive;renderFamily();
+ document.querySelectorAll(".actions button").forEach(x=>x.disabled=!b.alive);el("advance").disabled=!b.alive;renderFamily();save();
 }
 function renderFamily(){el("family").innerHTML="";for(const b of flock){const s=stageOf(b),v=variants[b.variant],btn=document.createElement("button");btn.className=b.id===selected?"active":"";btn.innerHTML='<span class="icon">'+(b.alive?s[1]:"🪶")+'</span>'+v.name+'<br><span class="small">'+s[2]+"</span>";btn.onclick=()=>{selected=b.id;render()};el("family").appendChild(btn)}}
 function change(vals,msg){const b=current();if(!b.alive)return;Object.entries(vals).forEach(([k,v])=>b[k]=clamp(b[k]+v));checkLife(b);render(msg)}
@@ -41,5 +41,5 @@ el("feed").onclick=()=>change({food:25,happy:3},"ごはんを食べました！"
 el("play").onclick=()=>change({happy:24,energy:-10,food:-6},"いっぱい遊びました！");
 el("sleep").onclick=()=>change({energy:30,food:-8},"ぐっすり眠りました。");
 el("advance").onclick=()=>{const b=current();if(!b.alive)return;b.age+=3;b.food=clamp(b.food-10);b.happy=clamp(b.happy-6);b.energy=clamp(b.energy-7);checkLife(b);let msg="3時間たちました。";if(b.alive&&stageOf(b)[0]==="adult"&&!b.laid&&b.food>=55&&b.happy>=55&&b.energy>=55){const child=layEgg(b);msg="🥚 "+variants[b.variant].name+"ちゃんが卵を産みました！ 新しい家族が増えました。";selected=child.id}render(msg)};
-render("最初の卵がやってきました。育ててみましょう！");
+load();render(localStorage.getItem(SAVE_KEY)?"おかえりなさい。前回の続きから育てられます。":"最初の卵がやってきました。育ててみましょう！");
 </script></body></html>
