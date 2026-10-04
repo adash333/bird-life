@@ -8,6 +8,10 @@ A simple virtual bird-raising game where birds grow, lay eggs, and gradually bui
 
 Open the link above on a phone or computer to play the latest version.
 
+## Requirements
+
+See [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) (要件定義書) for the full, up-to-date requirements.
+
 ## Current MVP
 
 Bird Life is a small browser-based virtual pet game inspired by classic pet-raising games.
