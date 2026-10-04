@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#bfe7ff" />
     <title>Bird Life</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=261004-24" />
   </head>
   <body>
     <main class="app">
@@ -46,12 +46,13 @@
           ><button id="advance" class="primary">⏩<br />＋3時間</button>
         </div>
         <div class="dataActions">
-          <button id="exportData">JSONエクスポート</button>
-          <button id="importData">JSONインポート</button>
+          <button id="exportData"><span aria-hidden="true">🐤</span> JSONエクスポート</button>
+          <button id="importData"><span aria-hidden="true">🪺</span> JSONインポート</button>
           <input id="importFile" type="file" accept=".json,application/json" hidden />
         </div>
         <p class="dataHint">インポートすると現在のゲームデータを置き換えます。</p>
         <div id="dataStatus" class="muted" role="status" aria-live="polite"></div>
+        <a id="exportLink" class="exportLink hidden">💌 JSONを保存する</a>
       </section>
       <section class="panel familyPanel">
         <strong>🐦 鳥の家族</strong>
@@ -75,13 +76,13 @@
         box.textContent = "⚠️ エラー: " + detail + where;
       });
     </script>
-    <script src="js/state.js"></script>
-    <script src="js/birds.js"></script>
-    <script src="js/birdArt.js"></script>
-    <script src="js/sound.js"></script>
-    <script src="js/save.js"></script>
-    <script src="js/rules.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/state.js?v=261004-24"></script>
+    <script src="js/birds.js?v=261004-24"></script>
+    <script src="js/birdArt.js?v=261004-24"></script>
+    <script src="js/sound.js?v=261004-24"></script>
+    <script src="js/save.js?v=261004-24"></script>
+    <script src="js/rules.js?v=261004-24"></script>
+    <script src="js/ui.js?v=261004-24"></script>
+    <script src="js/main.js?v=261004-24"></script>
   </body>
 </html>

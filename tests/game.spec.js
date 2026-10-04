@@ -314,6 +314,11 @@ test("JSON export and import restore the family, traits, selection and care prog
   expect(download.suggestedFilename()).toMatch(/^bird-life-.*\.json$/);
   const json = await fs.readFile(await download.path(), "utf8");
   expect(JSON.parse(json)).toEqual(expected);
+  await expect(page.locator("#dataStatus")).toContainText("JSONを用意しました");
+  await expect(page.locator("#exportLink")).toBeVisible();
+  const retryDownload = page.waitForEvent("download");
+  await page.click("#exportLink");
+  expect(JSON.parse(await fs.readFile(await (await retryDownload).path(), "utf8"))).toEqual(expected);
   await page.click("#sleep");
   await page.click("#importData");
   await page

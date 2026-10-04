@@ -24,10 +24,10 @@ const html = readFileSync("index.html", "utf8");
 
 // External scripts and stylesheets referenced by index.html must exist.
 for (const [, src] of html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)) {
-  if (!existsSync(src)) fail("index.html references missing script: " + src);
+  if (!existsSync(src.split("?")[0])) fail("index.html references missing script: " + src);
 }
 for (const [, href] of html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)) {
-  if (!existsSync(href)) fail("index.html references missing stylesheet: " + href);
+  if (!existsSync(href.split("?")[0])) fail("index.html references missing stylesheet: " + href);
 }
 
 // Inline scripts inside index.html.

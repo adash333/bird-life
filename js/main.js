@@ -1,16 +1,24 @@
 // ボタンの動作とゲームの開始。必ず最後に読み込む。
 el("soundStart").onclick = startAudio;
+let exportUrl = null;
 el("exportData").onclick = () => {
-  const blob = new Blob([JSON.stringify(gameData(), null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "bird-life-" + new Date().toISOString().replace(/[:.]/g, "-") + ".json";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  el("dataStatus").textContent = "ゲームデータをJSONでエクスポートしました。";
+  try {
+    const blob = new Blob([JSON.stringify(gameData(), null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    if (exportUrl) URL.revokeObjectURL(exportUrl);
+    exportUrl = url;
+    const link = el("exportLink");
+    link.href = url;
+    link.download = "bird-life-" + new Date().toISOString().replace(/[:.]/g, "-") + ".json";
+    link.classList.remove("hidden");
+    el("dataStatus").textContent =
+      "JSONを用意しました。保存が始まらない場合は下の「JSONを保存する」を押してください。";
+    link.scrollIntoView({ block: "nearest" });
+    link.click();
+  } catch (e) {
+    el("dataStatus").textContent =
+      "JSONを用意できませんでした。ページを再読み込みして、もう一度お試しください。";
+  }
 };
 el("importData").onclick = () => el("importFile").click();
 el("importFile").onchange = async (event) => {
