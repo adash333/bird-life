@@ -210,8 +210,14 @@ test("progress is saved and restored after reload", async ({ page }) => {
 for (const [label, save] of [
   ["broken JSON", "{not json"],
   ["empty flock", JSON.stringify({ flock: [] })],
-  ["only dead birds", JSON.stringify({ nextId: 3, selected: 1, flock: [{ id: 1, alive: false, warmth: 3, age: 40 }] })],
-  ["strange values", JSON.stringify({ selected: 99, flock: [{ id: "x", food: "lots", x: 999, y: -5 }, null, 7] })],
+  [
+    "only dead birds",
+    JSON.stringify({ nextId: 3, selected: 1, flock: [{ id: 1, alive: false, warmth: 3, age: 40 }] }),
+  ],
+  [
+    "strange values",
+    JSON.stringify({ selected: 99, flock: [{ id: "x", food: "lots", x: 999, y: -5 }, null, 7] }),
+  ],
 ]) {
   test(`a ${label} save never stops the game`, async ({ page }) => {
     await page.addInitScript(

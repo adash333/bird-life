@@ -7,6 +7,13 @@
 - **At the end of every work session/turn that changes this repository, always run `/save-prompt` automatically, even if the user does not explicitly request it.**
 - Follow `.claude/skills/save-prompt/SKILL.md` for the save procedure.
 
+## Code and tests
+
+- Game code is split by role: `index.html`, `style.css`, `js/*.js` (see README "Code layout"). Keep plain `<script src>` files (no ES modules, no build step) so `index.html` also works when opened directly from disk.
+- **Before every push, run `npm test` and make sure it passes.** Run `npm run format` after editing.
+- When adding or changing behavior, add or update a test in `tests/game.spec.js` that plays it through.
+- GitHub Actions (`.github/workflows/test.yml`) runs the same tests on every push; a red run must be fixed right away.
+
 ## Requirements document
 
 - `docs/REQUIREMENTS.md` (要件定義書) is the single source of truth for what the game must do.

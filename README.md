@@ -34,7 +34,32 @@ Eggs hatch after being warmed three times.
 
 ## Run locally
 
-No build step or dependencies are required. Open `index.html` in a browser.
+No build step is required. Open `index.html` in a browser.
+
+## Code layout
+
+| File | Role |
+| --- | --- |
+| `index.html` | Page skeleton; loads the files below in order and shows any error on screen |
+| `style.css` | All styles |
+| `js/state.js` | Shared game state and small helpers |
+| `js/birds.js` | Bird data: colors/patterns, names, growth stages |
+| `js/birdArt.js` | Bird pictures (SVG) per growth stage |
+| `js/sound.js` | Sound effects (Web Audio API) |
+| `js/save.js` | Save / load with localStorage |
+| `js/rules.js` | Game rules: care, time, falling asleep / revive, egg laying |
+| `js/ui.js` | Drawing the world, panels, family list and notices |
+| `js/main.js` | Button handlers and game start (loaded last) |
+
+## Tests
+
+```sh
+npm install
+npm test      # syntax check + automated play-through in a real browser (phone and desktop sizes)
+npm run format
+```
+
+GitHub Actions runs `npm test` on every push (`.github/workflows/test.yml`). A red ✗ on a commit means the game is broken.
 
 ## Next ideas
 
