@@ -2,11 +2,19 @@
 
 ## Core concept
 
-A lightweight virtual bird-raising game. The player repeatedly raises individual birds. When one bird's life ends, a new egg appears and hatches into a bird with a different appearance.
+A lightweight virtual bird-raising game. Birds grow from eggs into adults, and healthy adult birds can lay eggs. Parents remain in the flock, so the bird family can gradually grow.
 
-Game over is therefore a **generation transition**, not a complete reset.
+## Growth cycle
 
-## Current state
+1. Egg: 0–5 hours
+2. Chick: 6–17 hours
+3. Young bird: 18–35 hours
+4. Adult: 36+ hours
+5. A healthy adult can lay an egg
+
+The current prototype advances time manually in 3-hour steps.
+
+## Status
 
 Each bird has three values from 0 to 100:
 
@@ -19,42 +27,45 @@ Actions:
 - Food: hunger +25, happiness +3
 - Play: happiness +24, energy -10, hunger -6
 - Sleep: energy +30, hunger -8
-- Advance 3 hours: hunger -18, happiness -12, energy -13
+- Advance 3 hours: hunger -10, happiness -6, energy -7
 
-When any status reaches zero, the current generation ends.
+If any status reaches zero, that individual bird's life ends. Other birds continue living.
 
-## Generation system
+## Egg laying and family growth
 
-After game over:
+An adult bird lays one egg when hunger, happiness, and energy are all at least 55 during a time advance.
 
-1. The current bird remains in the collection.
-2. A new egg appears.
-3. The player hatches the egg.
-4. A bird different from the immediately previous bird is selected.
-5. Status values restart at 70.
+The parent remains in the flock. The egg is added as a new individual and can be selected and raised separately.
 
-Current prototype bird variants use emoji placeholders. Original artwork should replace these later.
+For the MVP, each adult lays one egg.
+
+## Inheritance and variation
+
+A child currently has:
+
+- 55% chance to inherit the parent's bird variant
+- 45% chance to become a different variant
+
+This is a simple placeholder genetics system. Future versions can independently inherit color, pattern, body shape, clothing, and rare traits.
 
 ## Product direction
 
-A future version should make appearance depend partly on care history rather than pure randomness. Possible examples:
+The main loop is now:
 
-- lots of play → colorful / energetic bird
-- lots of sleep → fluffy bird
-- balanced care → special bird
-- exceptional care → rare bird
+**raise → grow → adult → lay egg → family grows → raise the next generation**
 
-This makes each generation a collectible result of the player's behavior.
+The collection is not merely a historical encyclopedia: living parents and children coexist as a flock.
 
 ## Technical direction
 
-The first version is deliberately dependency-free HTML/CSS/JavaScript and suitable for GitHub Pages.
+The MVP remains dependency-free HTML/CSS/JavaScript and suitable for GitHub Pages.
 
 Near-term priorities:
 
-1. Persist state with local storage.
+1. Persist flock and status with local storage.
 2. Use real elapsed time instead of the manual +3 hours button.
-3. Add egg/chick/adult growth stages.
-4. Add original visual assets.
-5. Add a proper collection/encyclopedia.
-6. Consider PWA installation after the gameplay loop is stable.
+3. Improve breeding/inheritance rules.
+4. Add original bird artwork with visible colors and patterns.
+5. Add a family tree / encyclopedia.
+6. Add egg incubation and hatching interactions.
+7. Consider PWA installation after the gameplay loop is stable.
