@@ -102,18 +102,26 @@ test("three care actions advance time by 3 hours", async ({ page }) => {
   await expect(page.locator("#msg")).toContainText("3時間たちました");
 });
 
-test("the bird grows chick → young → adult with different pictures", async ({ page }) => {
+test("the bird grows chick → young → adult with different pictures and doubles in size", async ({ page }) => {
   await openGame(page);
   await hatch(page);
   const tag = page.locator(`.worldBird[data-id="1"] .stageTag`);
   const art = () => page.locator(`.worldBird[data-id="1"] svg`).innerHTML();
+  const expectSize = async (size) => {
+    const bird = page.locator(`.worldBird[data-id="1"]`);
+    await expect(bird).toHaveCSS("width", `${size}px`);
+    await expect(bird).toHaveCSS("height", `${size}px`);
+    await expectBirdsVisible(page);
+  };
   const chickArt = await art();
   await expect(tag).toHaveText("ヒナ");
+  await expectSize(32);
   for (let i = 0; i < 4; i++) {
     await page.click("#feed");
     await page.click("#advance");
   }
   await expect(tag).toHaveText("若鳥");
+  await expectSize(64);
   const youngArt = await art();
   for (let i = 0; i < 6; i++) {
     await page.click("#feed");
@@ -122,8 +130,12 @@ test("the bird grows chick → young → adult with different pictures", async (
   }
   await selectBird(page, 1);
   await expect(tag).toHaveText("成鳥");
+  await expectSize(128);
   const adultArt = await art();
   expect(new Set([chickArt, youngArt, adultArt]).size).toBe(3);
+  await page.reload();
+  await expect(tag).toHaveText("成鳥");
+  await expectSize(128);
 });
 
 test("a healthy adult lays an egg and the family grows", async ({ page }) => {

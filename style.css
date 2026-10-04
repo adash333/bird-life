@@ -127,6 +127,18 @@ body {
 .worldBird.selected {
   filter: drop-shadow(0 0 7px #fff) drop-shadow(0 3px 2px #0003);
 }
+.worldBird.st-chick {
+  width: 32px;
+  height: 32px;
+}
+.worldBird.st-young {
+  width: 64px;
+  height: 64px;
+}
+.worldBird.st-adult {
+  width: 128px;
+  height: 128px;
+}
 .stageTag {
   position: absolute;
   left: 50%;
