@@ -4,7 +4,8 @@
 
 - Work directly on `main` unless the repository owner explicitly instructs otherwise.
 - Keep `main` pushed and up to date at the end of each completed unit of work.
-- When the user requests `/save-prompt`, follow `.claude/skills/save-prompt/SKILL.md`.
+- **At the end of every work session/turn that changes this repository, always run `/save-prompt` automatically, even if the user does not explicitly request it.**
+- Follow `.claude/skills/save-prompt/SKILL.md` for the save procedure.
 
 ## Prompt preservation
 
