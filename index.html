@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bird Life</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#263238;background:#fffaf0}
+body{margin:0;padding:20px}.app{max-width:520px;margin:auto}.card{background:white;border:1px solid #e5e0d8;border-radius:20px;padding:20px;margin-bottom:16px;text-align:center}
+.top{display:flex;justify-content:space-between;color:#777;font-size:14px}.bird{font-size:80px;margin:18px 0 8px}.name{font-size:22px;font-weight:700}.trait,.msg{color:#666}.msg{margin-top:10px}
+.stat{margin:14px 0;text-align:left}.label{display:flex;justify-content:space-between;font-size:14px}.bar{height:12px;background:#eee;border-radius:99px;overflow:hidden;margin-top:5px}.fill{height:100%;background:#78909c}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.actions button,button.primary{border:1px solid #ddd;background:white;border-radius:14px;padding:13px 8px;font-size:16px;cursor:pointer;min-height:54px}
+button.primary{width:100%;background:#263238;color:white;border:0;margin-top:10px}.hidden{display:none}.collection{font-size:30px;display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.small{font-size:12px;color:#777}
+</style>
+</head>
+<body>
+<main class="app">
+<section class="card">
+<div class="top"><span id="gen">1代目</span><span>Bird Life</span></div>
+<div id="bird" class="bird">🐣</div><div id="name" class="name">きいろちゃん</div><div id="trait" class="trait">黄色・ノーマル</div>
+<div id="msg" class="msg">新しい鳥との生活が始まりました。</div>
+</section>
+<section class="card" id="stats"></section>
+<div class="actions" id="actions"><button id="feed">🍚<br>ごはん</button><button id="play">🧸<br>あそぶ</button><button id="sleep">🌙<br>ねる</button></div>
+<button class="primary" id="advance">＋3時間</button>
+<section class="card hidden" id="gameover"><div style="font-size:50px">🥚</div><h2>次の卵がやってきました</h2><p>次に生まれる鳥は、色や模様が違います。</p><button class="primary" id="next">卵をかえす</button></section>
+<section class="card"><strong>📖 育てた鳥</strong><div id="collection" class="collection"><span>🐣</span></div><p class="small">ゲームオーバーになっても、育てた鳥は図鑑に残ります。</p></section>
+</main>
+<script>
+const birds=[
+ {face:"🐣",name:"きいろちゃん",trait:"黄色・ノーマル"},
+ {face:"🐦",name:"そらちゃん",trait:"青色・ほっぺ模様"},
+ {face:"🐤",name:"レモンちゃん",trait:"黄色・しま模様"},
+ {face:"🦜",name:"みどりちゃん",trait:"緑色・カラフル"},
+ {face:"🕊️",name:"しろちゃん",trait:"白色・ふわふわ"},
+ {face:"🐧",name:"くろちゃん",trait:"白黒・おなか模様"}
+];
+let generation=1,birdIndex=0,state={food:70,happy:70,energy:70},over=false;
+const el=id=>document.getElementById(id),clamp=v=>Math.max(0,Math.min(100,v));
+function render(message){
+ const b=birds[birdIndex];el("bird").textContent=b.face;el("name").textContent=b.name;el("trait").textContent=b.trait;el("gen").textContent=generation+"代目";
+ el("stats").innerHTML=[["food","🍚 おなか"],["happy","❤️ ごきげん"],["energy","⚡ げんき"]].map(([k,l])=>'<div class="stat"><div class="label"><span>'+l+'</span><span>'+Math.round(state[k])+'</span></div><div class="bar"><div class="fill" style="width:'+state[k]+'%"></div></div></div>').join("");
+ if(message)el("msg").textContent=message;if(!over&&(state.food<=0||state.happy<=0||state.energy<=0))gameOver();
+}
+function change(values,message){Object.entries(values).forEach(([k,v])=>state[k]=clamp(state[k]+v));render(message)}
+function gameOver(){over=true;el("msg").textContent="この鳥との暮らしはここまで。思い出は図鑑に残ります。";el("actions").classList.add("hidden");el("advance").classList.add("hidden");el("gameover").classList.remove("hidden")}
+el("feed").onclick=()=>change({food:25,happy:3},"ごはんを食べました！");
+el("play").onclick=()=>change({happy:24,energy:-10,food:-6},"いっぱい遊びました！");
+el("sleep").onclick=()=>change({energy:30,food:-8},"ぐっすり眠りました。");
+el("advance").onclick=()=>change({food:-18,happy:-12,energy:-13},"3時間たちました。");
+el("next").onclick=()=>{generation++;let n;do{n=Math.floor(Math.random()*birds.length)}while(n===birdIndex);birdIndex=n;state={food:70,happy:70,energy:70};over=false;const s=document.createElement("span");s.textContent=birds[n].face;el("collection").appendChild(s);el("actions").classList.remove("hidden");el("advance").classList.remove("hidden");el("gameover").classList.add("hidden");render("卵から新しい鳥が生まれました！")};
+render();
+</script>
+</body></html>
