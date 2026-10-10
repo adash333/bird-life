@@ -14,6 +14,7 @@ let nextId = 2,
   soundReady = false,
   moveTimer = null,
   actionCount = 0,
+  gameSlots = null,
   noticeDismissedFor = new Set();
 const el = (id) => document.getElementById(id),
   clamp = (v) => Math.max(0, Math.min(100, v)),

@@ -378,6 +378,26 @@ body {
 .hidden {
   display: none;
 }
+.gameActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.gameActions select {
+  min-width: 0;
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #baa1d4;
+  border-radius: 12px;
+  background: #f4edff;
+}
+.gameActions button {
+  padding: 8px;
+  font-size: 12px;
+}
 .dataActions {
   display: flex;
   gap: 6px;

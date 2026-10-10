@@ -40,6 +40,7 @@ function passTime(b) {
   if (b.food <= 0 || b.happy <= 0 || b.energy <= 0) return collapse(b);
   if (b.alive && stageOf(b)[0] === "adult" && b.food >= 55 && b.happy >= 55 && b.energy >= 55) {
     const child = layEgg(b);
+    if (!child) return " 🪺 家族が1000羽になったので、これ以上卵は産みません。";
     sound("egg");
     selected = child.id;
     return " 🥚 そして卵を産みました！";
@@ -75,6 +76,7 @@ function chooseChildVariant(p) {
   return n;
 }
 function layEgg(p) {
+  if (flock.filter((b) => b.alive).length >= 1000) return null;
   p.laid = true;
   const c = makeBird(nextId++, chooseChildVariant(p), p.id);
   c.name = uniqueName(c.id);

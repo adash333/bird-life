@@ -1,8 +1,95 @@
 // localStorage への保存と読み込み。壊れたデータも安全な値に直して読む。
 function save() {
   try {
+    if (gameSlots) saveSlot();
     localStorage.setItem(SAVE_KEY, JSON.stringify(gameData()));
   } catch (e) {}
+}
+const SLOTS_KEY = "bird-life-games-v1";
+function saveSlot() {
+  const slot = gameSlots.slots.find((s) => s.id === gameSlots.activeId);
+  slot.data = gameData();
+  localStorage.setItem(SLOTS_KEY, JSON.stringify(gameSlots));
+}
+function loadSlots() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SLOTS_KEY));
+    if (
+      d &&
+      Number.isSafeInteger(d.nextId) &&
+      Array.isArray(d.slots) &&
+      d.slots.length &&
+      d.slots.every(
+        (s) =>
+          Number.isSafeInteger(s.id) &&
+          typeof s.name === "string" &&
+          Array.isArray(s.data?.flock) &&
+          s.data.flock.length,
+      ) &&
+      new Set(d.slots.map((s) => s.id)).size === d.slots.length &&
+      d.nextId > Math.max(...d.slots.map((s) => s.id)) &&
+      d.slots.some((s) => s.id === d.activeId)
+    ) {
+      gameSlots = d;
+      return load(JSON.stringify(d.slots.find((s) => s.id === d.activeId).data));
+    }
+  } catch (e) {}
+  gameSlots = null;
+  return load();
+}
+function initializeSlots() {
+  if (!gameSlots)
+    gameSlots = { activeId: 1, nextId: 2, slots: [{ id: 1, name: "ゲーム1", data: gameData() }] };
+  renderSlots();
+}
+function renderSlots() {
+  el("savedGames").replaceChildren(
+    ...gameSlots.slots.map((s) => {
+      const option = document.createElement("option");
+      option.value = s.id;
+      option.textContent = s.name;
+      return option;
+    }),
+  );
+  el("savedGames").value = gameSlots.activeId;
+}
+function createGame() {
+  saveSlot();
+  const id = gameSlots.nextId;
+  const data = {
+    format: "bird-life",
+    version: 2,
+    nextId: 2,
+    selected: 1,
+    actionCount: 0,
+    flock: [makeBird(1, 0)],
+  };
+  const updated = {
+    activeId: id,
+    nextId: id + 1,
+    slots: [...gameSlots.slots, { id, name: "ゲーム" + id, data }],
+  };
+  localStorage.setItem(SLOTS_KEY, JSON.stringify(updated));
+  gameSlots = updated;
+  importGameData(JSON.stringify(data));
+  renderSlots();
+  render("🪺 今までのゲームを保存して、新しいゲームを始めました。");
+}
+function switchGame(id) {
+  const slot = gameSlots.slots.find((s) => s.id === id);
+  if (!slot || id === gameSlots.activeId) return;
+  saveSlot();
+  const previous = gameSlots.activeId;
+  gameSlots.activeId = id;
+  try {
+    importGameData(JSON.stringify(slot.data));
+  } catch (e) {
+    gameSlots.activeId = previous;
+    renderSlots();
+    throw e;
+  }
+  renderSlots();
+  render("🪺 " + slot.name + "に切り替えました。");
 }
 function gameData() {
   return { format: "bird-life", version: 2, nextId, selected, actionCount, flock };
@@ -78,9 +165,9 @@ function normalizeBird(b, i) {
     y: Number.isFinite(+b.y) ? Math.max(25, Math.min(85, +b.y)) : 40 + ((i * 7) % 30),
   };
 }
-function load() {
+function load(slotText = null) {
   try {
-    const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem("bird-life-save-v1");
+    const raw = slotText || localStorage.getItem(SAVE_KEY) || localStorage.getItem("bird-life-save-v1");
     if (!raw) return false;
     const d = JSON.parse(raw);
     if (!Array.isArray(d.flock)) return false;

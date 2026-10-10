@@ -232,6 +232,90 @@ test("an adult keeps laying eggs after reload while healthy, and stops when hung
   await expectBirdsVisible(page);
 });
 
+test("the family stops laying at 1000 including eggs, even after reload", async ({ page }) => {
+  await openGame(page);
+  await page.evaluate(() => {
+    flock = Array.from({ length: 999 }, (_, i) => makeBird(i + 1, 0));
+    nextId = 1000;
+    selected = 1;
+    current().warmth = 3;
+    current().age = 36;
+    current().food = current().happy = current().energy = 100;
+    render();
+  });
+  await page.click("#advance");
+  await expect(page.locator("#count")).toHaveText("1000羽");
+  await expect(page.locator("#msg")).toContainText("卵を産みました");
+  await page.reload();
+  await selectBird(page, 1);
+  await page.click("#advance");
+  await expect(page.locator("#count")).toHaveText("1000羽");
+  await expect(page.locator("#msg")).toContainText("これ以上卵は産みません");
+  await page.click("#feed");
+  await page.click("#feed");
+  await page.click("#sleep");
+  await expect(page.locator("#msg")).toContainText("これ以上卵は産みません");
+  await expect(page.locator("#count")).toHaveText("1000羽");
+  expect(await page.evaluate(() => nextId)).toBe(1001);
+});
+
+test("saved games keep separate progress and the selected game survives reload", async ({ page }) => {
+  await openGame(page);
+  await hatch(page);
+  await page.click("#feed");
+  const first = await page.evaluate(() => JSON.parse(JSON.stringify(gameData())));
+  await page.click("#newGame");
+  await expect(page.locator("#savedGames")).toHaveValue("2");
+  await expect(page.locator("#count")).toHaveText("1羽");
+  await expect(page.locator("#warmText")).toHaveText("0 / 3 回 あたためました");
+  await page.click("#warm");
+  const second = await page.evaluate(() => JSON.parse(JSON.stringify(gameData())));
+  await page.selectOption("#savedGames", "1");
+  expect(await page.evaluate(() => gameData())).toEqual(first);
+  await expectBirdsVisible(page);
+  await page.selectOption("#savedGames", "2");
+  await page.reload();
+  await expect(page.locator("#savedGames")).toHaveValue("2");
+  expect(await page.evaluate(() => gameData())).toEqual(second);
+  await page.selectOption("#savedGames", "1");
+  expect(await page.evaluate(() => gameData())).toEqual(first);
+  await page.click("#newGame");
+  await expect(page.locator("#savedGames option")).toHaveCount(3);
+  await page.selectOption("#savedGames", "2");
+  expect(await page.evaluate(() => gameData())).toEqual(second);
+});
+
+test("an existing single save becomes game 1 and cannot be lost if creating a game fails", async ({
+  page,
+}) => {
+  await openGame(page);
+  await hatch(page);
+  await page.click("#feed");
+  const original = await page.evaluate(() => {
+    localStorage.removeItem(SLOTS_KEY);
+    return JSON.parse(localStorage.getItem(SAVE_KEY));
+  });
+  await page.reload();
+  await expect(page.locator("#savedGames")).toHaveValue("1");
+  expect(await page.evaluate(() => gameData())).toEqual(original);
+  await page.evaluate(() => {
+    const originalSet = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === SLOTS_KEY) throw new Error("Storage full");
+      return originalSet.call(this, key, value);
+    };
+  });
+  await page.click("#newGame");
+  await expect(page.locator("#dataStatus")).toContainText("保存できませんでした");
+  expect(await page.evaluate(() => gameData())).toEqual(original);
+  await page.reload();
+  expect(await page.evaluate(() => gameData())).toEqual(original);
+  await page.click("#newGame");
+  await expect(page.locator("#savedGames")).toHaveValue("2");
+  await page.selectOption("#savedGames", "1");
+  expect(await page.evaluate(() => gameData())).toEqual(original);
+});
+
 test("a bird whose status hits 0 falls asleep and revives after 3 pats", async ({ page }) => {
   await openGame(page);
   await hatch(page);

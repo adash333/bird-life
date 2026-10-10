@@ -1,6 +1,30 @@
 // ボタンの動作とゲームの開始。必ず最後に読み込む。
 el("soundStart").onclick = startAudio;
 let exportUrl = null;
+function clearDataStatus() {
+  if (exportUrl) URL.revokeObjectURL(exportUrl);
+  exportUrl = null;
+  el("exportLink").classList.add("hidden");
+  el("dataStatus").textContent = "";
+  noticeDismissedFor.clear();
+}
+el("newGame").onclick = () => {
+  try {
+    createGame();
+    clearDataStatus();
+  } catch (e) {
+    el("dataStatus").textContent = "新しいゲームを保存できませんでした。保存容量を確認してください。";
+  }
+};
+el("savedGames").onchange = () => {
+  try {
+    switchGame(Number(el("savedGames").value));
+    clearDataStatus();
+  } catch (e) {
+    renderSlots();
+    el("dataStatus").textContent = "ゲームを切り替えられませんでした。";
+  }
+};
 el("exportData").onclick = () => {
   try {
     const blob = new Blob([JSON.stringify(gameData(), null, 2)], { type: "application/json" });
@@ -91,7 +115,7 @@ el("advance").onclick = () => {
   actionCount = 0;
   render("⏩ " + (passTime(b) || "3時間たちました。"));
 };
-let restored = load();
+let restored = loadSlots();
 if (!flock.length) {
   flock = [makeBird(1, 0)];
   nextId = 2;
@@ -100,6 +124,7 @@ if (!flock.length) {
 }
 ensurePlayable();
 if (!current().name && current().warmth >= 3) current().name = uniqueName(current().id);
+initializeSlots();
 render(restored ? "おかえりなさい。鳥たちは世界で暮らしています。" : "最初の卵が世界にやってきました。");
 moveTimer = setInterval(wander, 2600);
 addEventListener("resize", layoutField);
