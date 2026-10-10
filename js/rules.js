@@ -38,7 +38,7 @@ function passTime(b) {
   b.happy = clamp(b.happy - 6);
   b.energy = clamp(b.energy - 7);
   if (b.food <= 0 || b.happy <= 0 || b.energy <= 0) return collapse(b);
-  if (b.alive && stageOf(b)[0] === "adult" && !b.laid && b.food >= 55 && b.happy >= 55 && b.energy >= 55) {
+  if (b.alive && stageOf(b)[0] === "adult" && b.food >= 55 && b.happy >= 55 && b.energy >= 55) {
     const child = layEgg(b);
     sound("egg");
     selected = child.id;

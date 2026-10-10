@@ -199,6 +199,39 @@ test("a healthy adult lays an egg and the family grows", async ({ page }) => {
   await expectBirdsVisible(page);
 });
 
+test("an adult keeps laying eggs after reload while healthy, and stops when hungry", async ({ page }) => {
+  await openGame(page);
+  await hatch(page);
+  await page.evaluate(() => {
+    current().age = 36;
+    current().food = current().happy = current().energy = 100;
+    render();
+  });
+  await page.click("#advance");
+  await expect(page.locator("#count")).toHaveText("2羽");
+  await page.reload();
+  for (const count of [3, 4]) {
+    await selectBird(page, 1);
+    await page.click("#advance");
+    await expect(page.locator("#msg")).toContainText("卵を産みました");
+    await expect(page.locator("#count")).toHaveText(`${count}羽`);
+  }
+  expect(await page.evaluate(() => flock.slice(1).map((b) => b.parent))).toEqual([1, 1, 1]);
+  await selectBird(page, 1);
+  await page.evaluate(() => {
+    current().food = 60;
+    render();
+  });
+  await page.click("#advance");
+  await expect(page.locator("#count")).toHaveText("4羽");
+  await page.click("#feed");
+  await page.click("#feed");
+  await page.click("#sleep");
+  await expect(page.locator("#msg")).toContainText("卵を産みました");
+  await expect(page.locator("#count")).toHaveText("5羽");
+  await expectBirdsVisible(page);
+});
+
 test("a bird whose status hits 0 falls asleep and revives after 3 pats", async ({ page }) => {
   await openGame(page);
   await hatch(page);
