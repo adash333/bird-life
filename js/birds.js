@@ -96,7 +96,7 @@ function makeBird(id, variant, parent = null) {
 }
 function stageOf(b) {
   if ((b.warmth || 0) < 3) return ["egg", "🥚", "卵"];
-  if (b.age < 18) return ["chick", "🐣", "ヒナ"];
-  if (b.age < 36) return ["young", "🐤", "若鳥"];
+  if (b.age < 12) return ["chick", "🐣", "ヒナ"];
+  if (b.age < 15) return ["young", "🐤", "若鳥"];
   return ["adult", variants[b.variant].adult, "成鳥"];
 }

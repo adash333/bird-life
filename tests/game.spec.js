@@ -117,20 +117,18 @@ test("the bird grows chick → young → adult with different pictures and doubl
   const chickArt = await art();
   await expect(tag).toHaveText("ヒナ");
   await expectSize(32);
-  for (let i = 0; i < 4; i++) {
-    await page.click("#feed");
-    await page.click("#advance");
-  }
+  await page.click("#advance");
+  await expect(tag).toHaveText("ヒナ");
+  await expect(page.locator("#stage")).toContainText("生後 9時間");
+  await page.click("#advance");
   await expect(tag).toHaveText("若鳥");
   await expectSize(64);
   const youngArt = await art();
-  for (let i = 0; i < 6; i++) {
-    await page.click("#feed");
-    await page.click("#sleep");
-    await page.click("#advance");
-  }
+  await expect(page.locator("#stage")).toContainText("生後 12時間");
+  await page.click("#advance");
   await selectBird(page, 1);
   await expect(tag).toHaveText("成鳥");
+  await expect(page.locator("#stage")).toContainText("生後 15時間");
   await expectSize(128);
   const adultArt = await art();
   expect(new Set([chickArt, youngArt, adultArt]).size).toBe(3);
@@ -146,7 +144,7 @@ test("awake adults sometimes fly, flap their wings and land", async ({ page }) =
     flock = [makeBird(1, 0), makeBird(2, 0), makeBird(3, 0), makeBird(4, 0), makeBird(5, 0)];
     for (const b of flock) {
       b.warmth = b.id === 5 ? 0 : 3;
-      b.age = b.id === 2 ? 6 : b.id === 3 ? 18 : 36;
+      b.age = b.id === 2 ? 6 : b.id === 3 ? 12 : 15;
     }
     flock[3].collapsed = true;
     selected = 1;
